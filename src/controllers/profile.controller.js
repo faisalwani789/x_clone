@@ -7,6 +7,7 @@ export const getProfile = async (req, res) => {
         //get user+posts
         await conn.beginTransaction()
         const [[profile]]=await conn.execute('call getProfile(?)',[id])
+        await conn.commit()
         res.status(200).json({ success: true, profile:profile[0].userProfile})
 
     } catch (error) {
@@ -14,6 +15,21 @@ export const getProfile = async (req, res) => {
         res.status(500).json({ success: false, message: error.message })
     }
     finally {
+     conn.release()
+    }
+}
+export const editProfile=async(req,res)=>{
+    const conn = await pool.getConnection()
+    try {
+        await conn.beginTransaction()
+        
+         await conn.commit()
+    } catch (error) {
+        conn.rollback()
+        res.status(500).json({ success: false, message: error.message })
+        
+    }
+       finally {
      conn.release()
     }
 }

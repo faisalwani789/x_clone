@@ -3,7 +3,7 @@ import { uploadOnCloudinary } from "../utils/cloundinary.js"
 export const addTweet=async(req,res)=>{
     const{content}=req.body
     console.log(content)
-    const {id}=req.user
+    const {id:userId}=req.user
     const {retweet=null }=req.params
     let mediaPathLocal;
     let cloudinaryLinks=[];
@@ -26,14 +26,14 @@ export const addTweet=async(req,res)=>{
             const response= await uploadOnCloudinary(file.path)
             cloudinaryLinks.push(response.url)
         }
-        
-        const [[tweet]]=await conn.execute('call addTweet(?,?,?)',[content,id,retweet]) // add tweet 
-        console.log(tweet)
+        console.log(cloudinaryLinks)
+        const [[message]]=await conn.execute('call addTweet(?,?,?,?)',[content,userId,retweet,JSON.stringify(cloudinaryLinks)]) // add tweet 
+        console.log(message)
         // return res.json(cloudinaryLinks)
-        await conn.execute('call addMedia(?,?)',[cloudinaryLinks,tweet[0].id]) //attaching media
+        // await conn.execute('call addMedia(?,?)',[cloudinaryLinks,tweet[0].id]) //attaching media
         await conn.commit()
         res.send(
-         'posted successfully'   
+         'posted successfully'+ message 
         )
 
     } catch (error) {
