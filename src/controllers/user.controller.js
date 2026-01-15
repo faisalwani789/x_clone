@@ -4,10 +4,10 @@ import { uploadOnCloudinary } from '../utils/cloundinary.js';
 import jwt from 'jsonwebtoken'
 import { json } from 'express';
 
-const generateAccessToken = function(id,email,username,fullName){
+const generateAccessToken = function(userId,email,username,fullName){
     return jwt.sign(
         {
-            _id: id,
+            id: userId,
             email: email,
             username: username,
             fullName: fullName
@@ -21,7 +21,7 @@ const generateAccessToken = function(id,email,username,fullName){
 const generateRefreshToken= function(userId){
     return jwt.sign(
         {
-            _id:userId,
+            id:userId,
             
         },
         process.env.REFRESH_TOKEN_SECRET,
@@ -29,24 +29,6 @@ const generateRefreshToken= function(userId){
             expiresIn: process.env.REFRESH_TOKEN_EXPIRY
         }
     )
-}
-const generateAccessAndRefereshTokens = async(userId) =>{
-    try {
-
-        // const user = await User.findById(userId)
-        const user = await pool.query('select * from user where id=?',[userId])
-        const accessToken = generateAccessToken()
-        const refreshToken = generateRefreshToken()
-
-        user.refreshToken = refreshToken
-        await user.save({ validateBeforeSave: false })
-
-        return {accessToken, refreshToken}
-
-
-    } catch (error) {
-        throw newError( "Something went wrong while generating referesh and access token")
-    }
 }
 
 export const addUser = async (req, res) => {

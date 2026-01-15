@@ -7,7 +7,7 @@ export const getProfile = async (req, res) => {
         //get user+posts
         await conn.beginTransaction()
         const [[profile]]=await conn.execute('call getProfile(?)',[id])
-        res.status(200).json({ success: true, profile:profile[0]})
+        res.status(200).json({ success: true, profile:profile[0].userProfile})
 
     } catch (error) {
         conn.rollback()
