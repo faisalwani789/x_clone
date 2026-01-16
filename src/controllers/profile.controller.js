@@ -18,18 +18,3 @@ export const getProfile = async (req, res) => {
      conn.release()
     }
 }
-export const editProfile=async(req,res)=>{
-    const conn = await pool.getConnection()
-    try {
-        await conn.beginTransaction()
-        
-         await conn.commit()
-    } catch (error) {
-        conn.rollback()
-        res.status(500).json({ success: false, message: error.message })
-        
-    }
-       finally {
-     conn.release()
-    }
-}
