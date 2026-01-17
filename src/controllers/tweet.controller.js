@@ -1,13 +1,14 @@
 import pool from "../config/db.js"
-const body={
-    'content':'hello',
-    "media":['dd','dd'],
-    "type":1,
-    "parentId":null,
-    "conversationId":null,
-    "replyToId":null,
-    "userId":1
-}
+import buildCommentTree from "../utils/comment.js"
+// const body={
+//     'content':'hello',
+//     "media":['dd','dd'],
+//     "type":1,
+//     "parentId":null,
+//     "conversationId":null,
+//     "replyToId":null,
+//     "userId":1
+// }
 import { uploadOnCloudinary } from "../utils/cloundinary.js"
 export const addTweet=async(req,res)=>{
     const{content=null,conversationId=null,replyToId=null,tweetType=null,parentId=null}=req.body
@@ -53,5 +54,39 @@ export const addTweet=async(req,res)=>{
         console.log(error)
     }finally{
          conn.release()
+    }
+}
+
+export const getTweets=async(req,res)=>{
+     const conn=await pool.getConnection()
+    try {
+        await conn.beginTransaction()
+        const[[result]]=await conn.query('call getTweets(?,?)',[10,0])
+        await conn.commit()
+          res.status(200).json({result:result[0]})
+    } catch (error) {
+        await conn.rollback()
+    }
+    finally{
+        await conn.release()
+    }
+}
+export const getTweetComments=async(req,res)=>{
+    const{tweetId}=req.body
+    const conn=await pool.getConnection()
+    try {
+        await conn.beginTransaction()
+
+        const[[result]]=await conn.query('call getTweets2(?)',[tweetId])
+        console.log(result)
+        const comments=buildCommentTree(result[0]?.json_data)
+        res.status(200).json({comments})
+        await conn.commit()
+    } catch (error) {
+        await conn.rollback()
+        console.log(error)
+    }
+    finally{
+        
     }
 }
