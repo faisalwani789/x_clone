@@ -65,6 +65,24 @@ export const getTweets=async(req,res)=>{
         await conn.commit()
           res.status(200).json({result:result[0]})
     } catch (error) {
+        console.log(error)
+        await conn.rollback()
+    }
+    finally{
+        await conn.release()
+    }
+}
+export const getFollowingTweets=async(req,res)=>{
+    const{id}=req.user
+     const conn=await pool.getConnection()
+    try {
+        await conn.beginTransaction()
+        const[[result]]=await conn.execute('call getFollowingTweets(?,?,?)',[id,10,0])
+        console.log(result)
+        await conn.commit()
+          res.status(200).json({result:result[0]})
+    } catch (error) {
+        console.log(error)
         await conn.rollback()
     }
     finally{

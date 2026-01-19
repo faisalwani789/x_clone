@@ -33,7 +33,7 @@ const generateRefreshToken= function(userId){
 
 export const addUser = async (req, res) => {
 
-    const { fullName, email, rawPassword, username,id,bio='' } = req.body
+    const { fullName, email, rawPassword,bio='' } = req.body
     let coverImageLocalPath;
 
     const conn = await pool.getConnection()
@@ -65,7 +65,7 @@ export const addUser = async (req, res) => {
 
 
 
-        await conn.execute('call add_User(?,?,?,?,?,?,?,?)', [email, username, password, profile.url, coverImage?.url || "", fullName,bio,id])
+        await conn.execute('call add_User(?,?,?,?,?,?)', [email, password, profile.url, coverImage?.url || "", fullName,bio])
 
         await conn.commit()
         res.status(201).json({ success: true, message: 'user added successfully' })
