@@ -2,8 +2,6 @@ import bcrypt from 'bcrypt'
 import pool from '../config/db.js';
 import { uploadOnCloudinary } from '../utils/cloundinary.js';
 import jwt from 'jsonwebtoken'
-import { json } from 'express';
-
 const generateAccessToken = function(userId,email,username,fullName){
     return jwt.sign(
         {
