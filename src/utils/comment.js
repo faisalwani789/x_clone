@@ -153,9 +153,9 @@ export default function buildCommentTree(comments) {
   // Step 2: Link Children to Parents
   comments.forEach((comment) => {
     // Check if this comment is a reply
-    if (comment.replyToId) {
+    if (comment.replyTo) {
       // Look up the parent in our Map
-      const parent = commentMap[comment.replyToId];
+      const parent = commentMap[comment.replyTo];
 
       // If parent exists, add this comment to their children
       if (parent) {

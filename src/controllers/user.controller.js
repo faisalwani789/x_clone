@@ -30,7 +30,7 @@ const generateRefreshToken= function(userId){
 }
 
 export const addUser = async (req, res) => {
-
+    // const {id}=req.user || null
     const { fullName, email, rawPassword,bio='' } = req.body
     let coverImageLocalPath;
 
@@ -80,14 +80,16 @@ export const addUser = async (req, res) => {
 
 export const loginUser=async(req,res)=>{
     const{password,email}=req.body
+     const options = {
+        httpOnly: true,
+        secure: false
+    }
     const conn= await pool.getConnection()
     try {
          if (!password && !email) {
             throw new Error(400, "password or email is required")
          }
         
-        await conn.beginTransaction()
-
         // const [user]= await conn.query('select password,id,userName,fullName from user where email=?',[email])
         // return res.json(user)
         
@@ -104,11 +106,12 @@ export const loginUser=async(req,res)=>{
         if(!isMatch)res.status(400).json({success:true,message:'invalid credentials'})
 
         const accessToken=generateAccessToken(id,userEmail,username,fullName)
-        const refereshToken=generateRefreshToken(id)
+        const refreshToken=generateRefreshToken(id)
 
-
-        await conn.commit()
-         res.status(200).json({ success: true, accessToken,refereshToken })
+        res.cookie("accessToken", accessToken, options)
+        res.cookie("refreshToken", refreshToken, options)
+       
+        res.status(200).json({ success: true, accessToken,refreshToken })
         
     } catch (error) {
        conn.rollback()
