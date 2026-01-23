@@ -1,18 +1,11 @@
 import pool from "../config/db.js"
 import buildCommentTree from "../utils/comment.js"
-// const body={
-//     'content':'hello',
-//     "media":['dd','dd'],
-//     "type":1,
-//     "parentId":null,
-//     "conversationId":null,
-//     "replyToId":null,
-//     "userId":1
-// }
 import { uploadOnCloudinary } from "../utils/cloundinary.js"
 export const addTweet=async(req,res)=>{
     const{content}=req.body
-    console.log(content)
+    const{tweetId=null,type}=req.query
+    console.log(type)
+    // console.log(content)
     const {id:userId}=req.user
     // const {retweet=null }=req.params
     let mediaPathLocal;
@@ -41,7 +34,7 @@ export const addTweet=async(req,res)=>{
         }
         
         console.log(cloudinaryLinks)
-        const [[message]]=await conn.execute('call addTweet(?,?,?)',[content,userId,JSON.stringify(cloudinaryLinks)]) // add tweet 
+        const [message]=await conn.execute('call addTweet(?,?,?,?,?)',[content,userId,JSON.stringify(cloudinaryLinks),type,tweetId]) // add tweet 
         console.log(message)
         // return res.json(cloudinaryLinks)
         // await conn.execute('call addMedia(?,?)',[cloudinaryLinks,tweet[0].id]) //attaching media
@@ -78,7 +71,7 @@ export const getFollowingTweets=async(req,res)=>{
     try {
         await conn.beginTransaction()
         const[[result]]=await conn.execute('call getFollowingTweets(?,?,?)',[id,10,0])
-        console.log(result)
+        
         await conn.commit()
           res.status(200).json({result:result[0].tweets})
     } catch (error) {

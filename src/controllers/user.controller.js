@@ -63,7 +63,7 @@ export const addUser = async (req, res) => {
 
 
 
-        await conn.execute('call add_User(?,?,?,?,?,?)', [email, password, profile.url, coverImage?.url || "", fullName,bio])
+        await conn.execute('call addUser(?,?,?,?,?,?)', [email, password, profile.url, coverImage?.url || "", fullName,bio])
 
         await conn.commit()
         res.status(201).json({ success: true, message: 'user added successfully' })
