@@ -18,18 +18,17 @@ export const getTweetComments=async(req,res)=>{
         console.log(error)
     }
     finally{
-                conn.release()
+        conn.release()
     }
 }
 export const addTweetComments=async(req,res)=>{
-    const{id:tweetId,commentId=null}=req.query
-    const{comment}=req.body
+    const{id:tweetId,type=null,commentId=null,comment}=req.body
     const{id}=req.user
     const conn=await pool.getConnection()
     try {
         await conn.beginTransaction()
 
-        const[[result]]=await conn.query('call addComment(?,?,?,?)',[id,tweetId,comment,commentId])
+        const[[result]]=await conn.query('call addComment(?,?,?,?,?)',[id,tweetId,type,comment,commentId])
         
         res.status(200).json({result })
         // res.status(200).json({resu })

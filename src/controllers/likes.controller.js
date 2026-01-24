@@ -1,7 +1,7 @@
 import pool from "../config/db.js"
 
 export const addTweetLike=async(req,res)=>{
-    const{id:refId,type}=req.query
+    const{refId,type}=req.body
     const{id:userId}=req.user
     const conn=await pool.getConnection()
     try {

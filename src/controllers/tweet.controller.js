@@ -2,8 +2,8 @@ import pool from "../config/db.js"
 import buildCommentTree from "../utils/comment.js"
 import { uploadOnCloudinary } from "../utils/cloundinary.js"
 export const addTweet=async(req,res)=>{
-    const{content}=req.body
-    const{tweetId=null,type}=req.query
+    const{content=null,tweetId=null,type}=req.body
+    
     console.log(type)
     // console.log(content)
     const {id:userId}=req.user
