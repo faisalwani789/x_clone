@@ -73,7 +73,7 @@ export const getFollowingTweets=async(req,res)=>{
         const[[result]]=await conn.execute('call getFollowingTweets(?,?,?)',[id,10,0])
         
         await conn.commit()
-          res.status(200).json({result:result[0].tweets})
+          res.status(200).json({result:result[0]})
     } catch (error) {
         console.log(error)
         await conn.rollback()

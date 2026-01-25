@@ -22,8 +22,9 @@ export const getTweetComments=async(req,res)=>{
     }
 }
 export const addTweetComments=async(req,res)=>{
-    const{id:tweetId,type=null,commentId=null,comment}=req.body
+    const{tweetId,type=null,commentId=null,comment}=req.body
     const{id}=req.user
+    console.log(tweetId,type)
     const conn=await pool.getConnection()
     try {
         await conn.beginTransaction()

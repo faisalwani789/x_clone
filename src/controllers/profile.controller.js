@@ -8,7 +8,7 @@ export const getProfile = async (req, res) => {
         await conn.beginTransaction()
         const [[profile]]=await conn.execute('call getProfile(?)',[id])
         await conn.commit()
-        res.status(200).json({ success: true, profile:profile[0].userProfile})
+        res.status(200).json({ success: true, profile:profile})
 
     } catch (error) {
         conn.rollback()
