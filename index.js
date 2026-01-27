@@ -7,6 +7,7 @@ import profileRouter from './src/router/profile.routes.js'
 import friedRequestRouter from './src/router/friend.requrest.routes.js'
 import commentRouter from './src/router/comment.routes.js'
 import likeRouter from './src/router/like.routes.js'
+import adminRouter from './src/router/admin.routes.js'
 configDotenv()
 const port=process.env.PORT
 const app=express()
@@ -20,6 +21,7 @@ app.use('/profile',profileRouter)
 app.use('/followers',friedRequestRouter)
 app.use('/comments',commentRouter)
 app.use('/likes',likeRouter)
+app.use('/admin',adminRouter)
 
 app.listen(port,()=>{
     console.log('listening to port'+port)

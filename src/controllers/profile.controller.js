@@ -3,10 +3,13 @@ import pool from "../config/db.js"
 export const getProfile = async (req, res) => {
     const conn = await pool.getConnection()
     const { id } = req.body
+    const {id:viewerId}=req.user
+    let access
+    if (req.body.id)
     try {
         //get user+posts
         await conn.beginTransaction()
-        const [[profile]]=await conn.execute('call getProfile(?)',[id])
+        const [[profile]]=await conn.execute('call getProfile(?,?)',[id,viewerId])
         await conn.commit()
         res.status(200).json({ success: true, profile:profile})
 

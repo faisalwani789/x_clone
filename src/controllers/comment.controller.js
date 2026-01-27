@@ -1,13 +1,13 @@
 import pool from "../config/db.js"
 import buildCommentTree from "../utils/comment.js"
 export const getTweetComments=async(req,res)=>{
-    const{id}=req.query
+    const{id,type}=req.query
     
     const conn=await pool.getConnection()
     try {
         await conn.beginTransaction()
 
-        const[[result]]=await conn.query('call getTweetComments3(?)',[id])
+        const[[result]]=await conn.query('call getTweetComments(?,?)',[id,type])
         console.log(result)
         const comments=buildCommentTree(result[0]?.json_data)
         // res.status(200).json({result })

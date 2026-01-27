@@ -2,7 +2,7 @@ import pool from "../config/db.js"
 import buildCommentTree from "../utils/comment.js"
 import { uploadOnCloudinary } from "../utils/cloundinary.js"
 export const addTweet=async(req,res)=>{
-    const{content=null,tweetId=null,type}=req.body
+    const{content=null,tweetId=null,type,parentRef=null}=req.body
     
     console.log(type)
     // console.log(content)
@@ -34,7 +34,7 @@ export const addTweet=async(req,res)=>{
         }
         
         console.log(cloudinaryLinks)
-        const [message]=await conn.execute('call addTweet(?,?,?,?,?)',[content,userId,JSON.stringify(cloudinaryLinks),type,tweetId]) // add tweet 
+        const [message]=await conn.execute('call addTweet(?,?,?,?,?,?)',[content,userId,JSON.stringify(cloudinaryLinks),type,tweetId,parentRef]) // add tweet 
         console.log(message)
         // return res.json(cloudinaryLinks)
         // await conn.execute('call addMedia(?,?)',[cloudinaryLinks,tweet[0].id]) //attaching media
@@ -56,7 +56,7 @@ export const getTweets=async(req,res)=>{
         await conn.beginTransaction()
         const[[result]]=await conn.query('call getTweets(?,?)',[10,0])
         await conn.commit()
-          res.status(200).json({result:result[0]})
+          res.status(200).json({result:result})
     } catch (error) {
         console.log(error)
         await conn.rollback()
@@ -73,7 +73,7 @@ export const getFollowingTweets=async(req,res)=>{
         const[[result]]=await conn.execute('call getFollowingTweets(?,?,?)',[id,10,0])
         
         await conn.commit()
-          res.status(200).json({result:result[0]})
+          res.status(200).json({result:result})
     } catch (error) {
         console.log(error)
         await conn.rollback()

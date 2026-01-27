@@ -147,7 +147,7 @@ export default function buildCommentTree(comments) {
   // We loop through every comment to create a direct reference to it
   comments.forEach((comment) => {
     comment.children = []; // Initialize empty children array
-    commentMap[comment.id] = comment; // Add to map
+    commentMap[comment.commentId] = comment; // Add to map
   });
 
   // Step 2: Link Children to Parents
