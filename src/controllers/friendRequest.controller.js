@@ -18,12 +18,12 @@ export const sendRequest = async(req,res) => {
     }
 }
 export const AcceptRequest = async(req,res) => {
-    const{id}=req.params
+    const{id:requestId}=req.params
     const{id:userId}=req.user
     const conn= await pool.getConnection()
     try {
         await conn.beginTransaction()
-        const [[result]]=await conn.execute('call acceptFollowRequest(?,?)',[id,userId])    
+        const [[result]]=await conn.execute('call acceptFollowRequest(?,?)',[requestId,userId])    
        
         await conn.commit()
         res.status(201).json({msg:result[0]})
@@ -53,11 +53,11 @@ export const getFollowRequests=async(req,res)=>{
 }
 export const getFollowers=async(req,res)=>{
     const{id:userId}=req.user
-   
+    const{id:seeFollowersOf}=req.body
     const conn= await pool.getConnection()
     try {
         await conn.beginTransaction()
-        const [[result]]=await conn.execute('call getFollowerList(?)',[userId])    
+        const [[result]]=await conn.execute('call getFollowerList(?,?)',[userId,seeFollowersOf])    
        
         await conn.commit()
         res.status(200).json({msg:result})
