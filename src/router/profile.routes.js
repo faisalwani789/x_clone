@@ -1,9 +1,11 @@
 import { Router } from "express";
-import { getProfile, setPrivateProfile} from "../controllers/profile.controller.js";
+import {getProfile, getProfilePosts, setPrivateProfile} from "../controllers/profile.controller.js";
 
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 const router=Router()
-router.get('/',authMiddleware,getProfile)
+router.get('/posts',authMiddleware,getProfilePosts)
+router.get('/:id',authMiddleware,getProfile)
+
 router.post('/private',authMiddleware,setPrivateProfile)
 
 
