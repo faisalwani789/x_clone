@@ -1,6 +1,25 @@
 import pool from "../config/db.js"
 
-export const getProfile = async (req, res) => {
+export const getProfile= async(req,res)=>{
+    const conn = await pool.getConnection()
+    const { id } = req.params
+    try {
+        //get user
+        
+        const [[profile]]=await conn.execute('call getProfile(?)',[id])
+       
+        res.status(200).json({ success: true, profile:profile})
+
+    } catch (error) {
+        conn.rollback()
+        console.log(error)
+        res.status(500).json({ success: false, message: error.message })
+    }
+    finally {
+     conn.release()
+    }
+}
+export const getProfilePosts = async (req, res) => {
     const conn = await pool.getConnection()
     const { id } = req.body
     const {id:viewerId}=req.user
@@ -9,7 +28,7 @@ export const getProfile = async (req, res) => {
     try {
         //get user+posts
         await conn.beginTransaction()
-        const [[profile]]=await conn.execute('call getProfile(?,?)',[id,viewerId])
+        const [[profile]]=await conn.execute('call getProfilePosts(?,?)',[id,viewerId])
         await conn.commit()
         res.status(200).json({ success: true, profile:profile})
 
