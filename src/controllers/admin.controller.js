@@ -23,12 +23,43 @@ export const getUsers=async(req,res)=>{
     }
 }
 
-export const blockUser=async()=>{
+export const blockUser=async(req,res)=>{
     const{id}=req.body
      const conn=await pool.getConnection()
     try {
-        const[[users]]= await conn.execute('call blockUser(id)')
+        const[[users]]= await conn.execute('call blockUser(id)',[id])
          res.status(200).json({ success: true, users })
+    } catch (error) {
+         res.status(500).json({ success: false, message: error.message })
+    }
+}
+export const unBlockUser=async(req,res)=>{
+    const{id}=req.body
+     const conn=await pool.getConnection()
+    try {
+        const[[users]]= await conn.execute('call unBlockUser(id)',[id])
+         res.status(200).json({ success: true, users })
+    } catch (error) {
+         res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+export const blockPost=async(req,res)=>{
+    const{id,type}=req.body
+     const conn=await pool.getConnection()
+    try {
+        const[[result]]= await conn.execute('call banPost(?,?)',[id,type])
+         res.status(200).json({ success: true,result})
+    } catch (error) {
+         res.status(500).json({ success: false, message: error.message })
+    }
+}
+export const unblockPost=async(req,res)=>{
+    const{id,type}=req.body
+     const conn=await pool.getConnection()
+    try {
+        const[[result]]= await conn.execute('call unBanPost(?,?)',[id,type])
+         res.status(200).json({ success: true, result })
     } catch (error) {
          res.status(500).json({ success: false, message: error.message })
     }
