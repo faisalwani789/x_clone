@@ -27,9 +27,10 @@ export const blockUser=async(req,res)=>{
     const{id}=req.body
      const conn=await pool.getConnection()
     try {
-        const[[users]]= await conn.execute('call blockUser(id)',[id])
-         res.status(200).json({ success: true, users })
+        const[[result]]= await conn.execute('call blockUser(?)',[id])
+         res.status(200).json({ success: true, result})
     } catch (error) {
+     console.error(error)
          res.status(500).json({ success: false, message: error.message })
     }
 }
@@ -37,7 +38,7 @@ export const unBlockUser=async(req,res)=>{
     const{id}=req.body
      const conn=await pool.getConnection()
     try {
-        const[[users]]= await conn.execute('call unBlockUser(id)',[id])
+        const[[users]]= await conn.execute('call unBlockUser(?)',[id])
          res.status(200).json({ success: true, users })
     } catch (error) {
          res.status(500).json({ success: false, message: error.message })
@@ -51,6 +52,7 @@ export const blockPost=async(req,res)=>{
         const[[result]]= await conn.execute('call banPost(?,?)',[id,type])
          res.status(200).json({ success: true,result})
     } catch (error) {
+     console.log(error)
          res.status(500).json({ success: false, message: error.message })
     }
 }
@@ -61,6 +63,7 @@ export const unblockPost=async(req,res)=>{
         const[[result]]= await conn.execute('call unBanPost(?,?)',[id,type])
          res.status(200).json({ success: true, result })
     } catch (error) {
+      console.log(error)
          res.status(500).json({ success: false, message: error.message })
     }
 }

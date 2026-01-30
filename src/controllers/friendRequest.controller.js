@@ -11,6 +11,7 @@ export const sendRequest = async(req,res) => {
         res.status(201).json({msg:result[0].result})
     } catch (error) {
         await conn.rollback()
+        console.log(error)
           res.status(500).json({ success: false, message: error.message })
     }
     finally{
