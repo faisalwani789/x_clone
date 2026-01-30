@@ -45,12 +45,14 @@ export const addTweet=async(req,res)=>{
 
     } catch (error) {
         console.log(error)
+        res.status(500).json({ success: false, message: error.message })
     }finally{
          conn.release()
     }
 }
 
 export const getTweets=async(req,res)=>{
+    
      const conn=await pool.getConnection()
     try {
         await conn.beginTransaction()
@@ -60,11 +62,30 @@ export const getTweets=async(req,res)=>{
     } catch (error) {
         console.log(error)
         await conn.rollback()
+        res.status(500).json({ success: false, message: error.message })
     }
     finally{
         await conn.release()
     }
 }
+export const getTweetById=async(req,res)=>{
+    const{retweetId=null}=req.query
+    const {id}=req.params
+     const conn=await pool.getConnection()
+    try {
+      
+        const[[result]]=await conn.query('call getTweetById(?,?)',[id,retweetId])
+      
+          res.status(200).json({result:result})
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ success: false, message: error.message })
+    }
+    finally{
+     conn.release()
+    }
+}
+
 export const getFollowingTweets=async(req,res)=>{
     const{id}=req.user
      const conn=await pool.getConnection()
