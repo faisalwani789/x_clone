@@ -70,21 +70,36 @@ export const getFollowers=async(req,res)=>{
         conn.release()
     }
 }
-export const removeFollower=async()=>{
-   const{id:userId}=req.user
-    
+
+export const getFollowing=async(req,res)=>{
+    const{id:userId}=req.user
+    const{id:seeFollowingOf}=req.body
     const conn= await pool.getConnection()
     try {
-        await conn.beginTransaction()
-        const [[result]]=await conn.execute('call removeFollower(?)',[userId])    
-       
-        await conn.commit()
+        const [[result]]=await conn.execute('call getFollowerList(?,?)',[userId,seeFollowingOf])    
         res.status(200).json({msg:result})
     } catch (error) {
-        await conn.rollback()
           res.status(500).json({ success: false, message: error.message })
     }
     finally{
         conn.release()
-    }  
+    }
 }
+// export const removeFollower=async()=>{
+//    const{id:userId}=req.user
+    
+//     const conn= await pool.getConnection()
+//     try {
+//         await conn.beginTransaction()
+//         const [[result]]=await conn.execute('call removeFollower(?)',[userId])    
+       
+//         await conn.commit()
+//         res.status(200).json({msg:result})
+//     } catch (error) {
+//         await conn.rollback()
+//           res.status(500).json({ success: false, message: error.message })
+//     }
+//     finally{
+//         conn.release()
+//     }  
+// }
