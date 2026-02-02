@@ -146,16 +146,16 @@ export default function buildCommentTree(comments) {
   // Step 1: Initialize the Map
   // We loop through every comment to create a direct reference to it
   comments.forEach((comment) => {
-    comment.children = []; // Initialize empty children array
-    commentMap[comment.commentId] = comment; // Add to map
+    comment.comment.children = []; // Initialize empty children array
+    commentMap[comment.comment.commentId] = comment.comment; // Add to map
   });
 
   // Step 2: Link Children to Parents
   comments.forEach((comment) => {
     // Check if this comment is a reply
-    if (comment.replyTo) {
+    if (comment.comment.replyTo) {
       // Look up the parent in our Map
-      const parent = commentMap[comment.replyTo];
+      const parent = commentMap[comment.comment.replyTo];
 
       // If parent exists, add this comment to their children
       if (parent) {

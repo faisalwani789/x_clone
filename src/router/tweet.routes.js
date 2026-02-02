@@ -6,7 +6,7 @@ const router=Router()
 router.post('/',authMiddleware,upload.array('media',4),addTweet)
 router.get('/',getTweets)
 router.get('/follow',authMiddleware,getFollowingTweets)
-router.get('/:id',getTweetById)
+router.get('/:id',authMiddleware,getTweetById)
 
 
 

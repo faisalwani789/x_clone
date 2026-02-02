@@ -51,16 +51,16 @@ export const addUser = async (req, res) => {
             coverImageLocalPath = req.files.cover[0].path
         }
 
-        if (!profileLocalPath) {
-            throw new Error("profile  is required")
-        }
+        // if (!profileLocalPath) {
+        //     throw new Error("profile  is required")
+        // }
 
         const profile = await uploadOnCloudinary(profileLocalPath)
         const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
-        if (!profile) {
-            throw new Error(400, "profile  file is required")
-        }
+        // if (!profile) {
+        //     throw new Error(400, "profile  file is required")
+        // }
 
 
 
