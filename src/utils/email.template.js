@@ -1,22 +1,54 @@
 // emailTemplate.js
-const emailTemplate = ( otp, year, company ) => {
+
+const emailTemplate = ( otp,title,message,time, year, company ) => {
 return`
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Your One-Time Password</title>
+  <title>${title}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+   body {
+      margin: 0;
+      padding: 0;
+      background-color: #f4f6f8;
+      font-family: Arial, Helvetica, sans-serif;
+      
+    }
+    table {
+      border-collapse: collapse;
+    }
+    .container {
+      max-width: 600px;
+      background-color: #ffffff;
+      margin: 40px auto;
+      border-radius: 6px;
+    }
+    .content {
+      padding: 30px;
+      color: #333333;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    .link-box {
+      background-color: #f1f3f4;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 20px 0;
+      word-break: break-all;
+    }
+  </style>
 </head>
-<body style="margin:0; padding:0; background-color:#f4f6f8; font-family:Arial, Helvetica, sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+<body>
+  <table style="width:100%;" >
     <tr>
-      <td align="center" style="padding:24px;">
-        <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width:480px; background-color:#ffffff; border-radius:8px; overflow:hidden;">
+      <td stle="align:center;">
+        <table class="container">
           
           <!-- Header -->
           <tr>
-            <td style="padding:24px; text-align:center; background-color:#0f62fe; color:#ffffff;">
+            <td style="content">
               <h1 style="margin:0; font-size:20px;">Verification Code</h1>
             </td>
           </tr>
@@ -29,27 +61,18 @@ return`
               </p>
 
               <p style="margin:0 0 20px; font-size:14px;">
-                Use the following One-Time Password (OTP) to complete your verification. This code is valid for <strong>5 minutes</strong>.
+               ${message} <strong>${time} minutes</strong>.
               </p>
 
               <!-- OTP Box -->
-              <div style="text-align:center; margin:24px 0;">
-                <span style="
-                  display:inline-block;
-                  font-size:28px;
-                  letter-spacing:6px;
-                  font-weight:bold;
-                  color:#0f62fe;
-                  padding:12px 24px;
-                  border:1px dashed #0f62fe;
-                  border-radius:6px;
-                ">
+              <div class="link-box">
+             
                   ${otp}
-                </span>
+                
               </div>
 
               <p style="margin:20px 0 0; font-size:14px;">
-                If you didn’t request this code, you can safely ignore this email.
+                If you didn’t initiate the request, you can safely ignore this email.
               </p>
             </td>
           </tr>
@@ -73,3 +96,81 @@ return`
 `
 }
 export default emailTemplate
+
+// <!DOCTYPE html>
+// <html lang="en">
+// <head>
+//   <meta charset="UTF-8" />
+//   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+//   <title>Email</title>
+//   <style>
+   
+    
+//     a {
+//       color: #1a73e8;
+//       text-decoration: none;
+//     }
+//     .footer {
+//       font-size: 12px;
+//       color: #888888;
+//       padding: 20px;
+//       text-align: center;
+//       background-color: #fafafa;
+//     }
+
+//     @media screen and (max-width: 600px) {
+//       .content {
+//         padding: 20px;
+//       }
+//     }
+//   </style>
+// </head>
+
+// <body>
+//   <table width="100%">
+//     <tr>
+//       <td align="center">
+//         <table class="container" width="100%">
+          
+//           <!-- Content -->
+//           <tr>
+//             <td class="content">
+//               <p>Hello</p>
+
+//               <p>
+//                 Please use the link below to continue. If you did not request this,
+//                 you can safely ignore this email.
+//               </p>
+
+//               <!-- Long Link -->
+//               <div class="link-box">
+//                 <a href="{{LONG_LINK}}">
+//                   {{LONG_LINK}}
+//                 </a>
+//               </div>
+
+//               <p style="font-size: 14px; color: #555;">
+//                 This link may expire in {{EXPIRY_TIME}}.
+//               </p>
+
+//               <p>
+//                 Thanks,<br />
+//                 <strong>Your Company Team</strong>
+//               </p>
+//             </td>
+//           </tr>
+
+//           <!-- Footer -->
+//           <tr>
+//             <td class="footer">
+//               © {{YEAR}} Your Company<br />
+//               <a href="{{UNSUBSCRIBE_LINK}}">Unsubscribe</a>
+//             </td>
+//           </tr>
+
+//         </table>
+//       </td>
+//     </tr>
+//   </table>
+// </body>
+// </html>

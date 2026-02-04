@@ -1,0 +1,1 @@
+export const defaultProfileImage='https://res.cloudinary.com/dq4nyd0os/image/upload/v1770004117/toppng.com-donna-picarro-dummy-avatar-768x768_f4ojfg.png'
