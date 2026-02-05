@@ -7,13 +7,13 @@ import { SendMailToClient } from '../services/sendMail.js';
 import { defaultProfileImage } from '../constants/db.default.js';
 import { otpMessage, otpTitle, otpSubject, forgetPasswordMessage, forgetPasswordSubject, forgetPasswordTitle } from '../constants/email.constants.js';
 import { generateResetToken, hashToken } from '../utils/generateToken.js';
-const generateAccessToken = function (userId, email, username, fullName) {
+const generateAccessToken = function (userId) {
     return jwt.sign(
         {
-            id: userId,
-            email: email,
-            username: username,
-            fullName: fullName
+            id: userId
+            // email: email,
+            // username: username,
+            // fullName: fullName
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
@@ -74,7 +74,7 @@ export const verifyEmail = async (req, res) => {
         if (!isMatch) throw new Error('please enter a valid otp')
         const [result] = await conn.execute('update userotps set isUsed=? where email=?', [1, email])
         // const[result]= await conn.execute('call updateOtpRecord(?,?)'[email,otp])
-        res.status(500).json({ success: true, message: 'otp verified successfully' })
+        res.status(200).json({ success: true, message: 'otp verified successfully' })
     } catch (error) {
         console.log(error)
         res.status(500).json({ success: false, message: error.message })
@@ -140,7 +140,7 @@ export const loginUser = async (req, res) => {
     const { password, email } = req.body
     const options = {
         httpOnly: true,
-        secure: false
+        secure: true
     }
     const conn = await pool.getConnection()
     try {
@@ -163,9 +163,10 @@ export const loginUser = async (req, res) => {
         const isMatch = await bcrypt.compare(password, userPassword)
         if (!isMatch) return res.status(400).json({ success: true, message: 'invalid credentials' })
 
-        const accessToken = generateAccessToken(id, userEmail, username, fullName)
+        const accessToken = generateAccessToken(id)
         const refreshToken = generateRefreshToken(id)
 
+        await conn.execute('insert into refresh_tokens (token,userId,isUsed,expiresAt) values (?,?,?,now()+interval ? day)',[refreshToken,id,false,15])
         res.cookie("accessToken", accessToken, options)
         res.cookie("refreshToken", refreshToken, options)
 
@@ -248,5 +249,57 @@ export const resetPassword = async (req, res) => {
     finally {
         conn.release()
 
+    }
+}
+
+export const refreshToken=async(req,res)=>{
+    const options = {
+        httpOnly: true,
+        secure: false
+    }
+    const conn=await pool.getConnection()
+    try {
+        const token=req.cookies.refreshToken
+        if(! token) throw new Error ('please login again')
+        await conn.beginTransaction()
+        const[rows]=await conn.execute('select * from refresh_tokens where token=?',[token])
+        if(rows.length===0){
+            throw new Error('invalid token')
+        }
+         const userId=rows[0].userId
+        const expiresAt=rows[0].expiresAt
+        const isUsed=rows[0].isUsed
+       
+        if(isUsed ){
+            //token reuse
+            //delete the tokens 
+            await conn.execute('delete from refresh_tokens where token=?',[token])
+            res.clearCookie('refreshToken')
+            throw new Error("token already used --- token reuse")
+        }
+
+         if(expiresAt < new Date()){
+            await conn.execute('delete from refresh_tokens where token=?',[token])
+            throw new Error ('token expired')
+        }
+        await conn.execute ('update refresh_tokens set isUsed=true where token=?',[token])
+       
+        const accessToken=generateAccessToken(userId)
+        const refreshToken = generateRefreshToken(userId)
+
+        // save new refresh token 
+        await conn.execute('insert into refresh_tokens (token,userId,isUsed,expiresAt) values (?,?,?,now()+interval ? day)',[refreshToken,userId,false,15])
+        res.cookie("accessToken", accessToken, options)
+        res.cookie("refreshToken", refreshToken, options)
+
+        await conn.commit()
+        res.status(201).json({success:true,accessToken})
+
+    } catch (error) {
+        await conn.rollback()
+        res.status(500).json({success:false,message:error.message})
+    }
+    finally{
+        conn.release()
     }
 }
