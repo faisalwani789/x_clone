@@ -1,16 +1,29 @@
+import { timeStamp } from "console"
 import pool from "../config/db.js"
 
 export const addTweetLike=async(req,res)=>{
-    const{refId,type}=req.body
+    const io=req.app.get('io')
+    const{refId,type,userId:authorId}=req.body
     const{id:userId}=req.user
+    const notification={
+        //send this notifcation to the author of the post refId and type
+        type:'like',
+        message:`${userId} liked your post`,
+        from :userId, //logged in user
+        timeStamp:new Date(),
+        read:false
+    }
     const conn=await pool.getConnection()
     try {
         await conn.beginTransaction()
-
+        // const[row]= await conn.execute('select * from user where ')
         const[[result]]=await conn.query('call addLike(?,?,?)',[userId,refId,type])
         console.log(result)
         
-   
+        //send notification
+        io.to(`user:${authorId}`).emit('notification',notification)
+
+        
         res.status(200).json({result })
         await conn.commit()
     } catch (error) {

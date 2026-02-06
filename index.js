@@ -26,6 +26,7 @@ app.use('/admin',adminRouter)
 app.use('/search',searchRouter)
 
 
-app.listen(port,()=>{
-    console.log('listening to port'+port)
-})
+// app.listen(port,()=>{
+//     console.log('listening to port'+port)
+// })
+export default app

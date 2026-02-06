@@ -137,6 +137,7 @@ export const addUser = async (req, res) => {
 }
 
 export const loginUser = async (req, res) => {
+    
     const { password, email } = req.body
     const options = {
         httpOnly: true,
