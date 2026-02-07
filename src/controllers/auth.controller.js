@@ -7,12 +7,12 @@ import { SendMailToClient } from '../services/sendMail.js';
 import { defaultProfileImage } from '../constants/db.default.js';
 import { otpMessage, otpTitle, otpSubject, forgetPasswordMessage, forgetPasswordSubject, forgetPasswordTitle } from '../constants/email.constants.js';
 import { generateResetToken, hashToken } from '../utils/generateToken.js';
-const generateAccessToken = function (userId) {
+const generateAccessToken = function (userId,fullName) {
     return jwt.sign(
         {
-            id: userId
+            id: userId,
             // email: email,
-            // username: username,
+            userName: fullName,
             // fullName: fullName
         },
         process.env.ACCESS_TOKEN_SECRET,
@@ -164,7 +164,7 @@ export const loginUser = async (req, res) => {
         const isMatch = await bcrypt.compare(password, userPassword)
         if (!isMatch) return res.status(400).json({ success: true, message: 'invalid credentials' })
 
-        const accessToken = generateAccessToken(id)
+        const accessToken = generateAccessToken(id,fullName)
         const refreshToken = generateRefreshToken(id)
 
         await conn.execute('insert into refresh_tokens (token,userId,isUsed,expiresAt) values (?,?,?,now()+interval ? day)',[refreshToken,id,false,15])
@@ -267,10 +267,14 @@ export const refreshToken=async(req,res)=>{
         if(rows.length===0){
             throw new Error('invalid token')
         }
-         const userId=rows[0].userId
+        const userId=rows[0].userId
         const expiresAt=rows[0].expiresAt
         const isUsed=rows[0].isUsed
-       
+
+        //taking fullname for storing in jwt 
+       const [user]=await conn.query('select fullName from user where id=?',[userId])
+       const fullName=user[0].fullName
+
         if(isUsed ){
             //token reuse
             //delete the tokens 
@@ -286,7 +290,7 @@ export const refreshToken=async(req,res)=>{
         await conn.execute ('update refresh_tokens set isUsed=true where token=?',[token])
        
         const accessToken=generateAccessToken(userId)
-        const refreshToken = generateRefreshToken(userId)
+        const refreshToken = generateRefreshToken(userId,fullName)
 
         // save new refresh token 
         await conn.execute('insert into refresh_tokens (token,userId,isUsed,expiresAt) values (?,?,?,now()+interval ? day)',[refreshToken,userId,false,15])

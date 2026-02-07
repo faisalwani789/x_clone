@@ -3,12 +3,13 @@ import pool from "../config/db.js"
 
 export const addTweetLike=async(req,res)=>{
     const io=req.app.get('io')
-    const{refId,type,userId:authorId}=req.body
-    const{id:userId}=req.user
+    const{refId,type,userId:authorId}=req.body //author id is the ownwer of the tweet/post
+    const{id:userId,userName}=req.user 
+    console.log(req.user)
     const notification={
         //send this notifcation to the author of the post refId and type
         type:'like',
-        message:`${userId} liked your post`,
+        message:`${userName} liked your post`,
         from :userId, //logged in user
         timeStamp:new Date(),
         read:false
@@ -17,8 +18,8 @@ export const addTweetLike=async(req,res)=>{
     try {
         await conn.beginTransaction()
         // const[row]= await conn.execute('select * from user where ')
-        const[[result]]=await conn.query('call addLike(?,?,?)',[userId,refId,type])
-        console.log(result)
+        const[[result]]=await conn.query('call addLike(?,?,?,?)',[userId,authorId,refId,type])
+        // console.log(result)
         
         //send notification
         io.to(`user:${authorId}`).emit('notification',notification)
