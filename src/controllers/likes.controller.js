@@ -23,6 +23,7 @@ export const addTweetLike = async (req, res) => {
         const message = `${userName} liked your ${postType[0].name}`
         console.log(message)
         const [[result]] = await conn.query('call addLike(?,?,?,?,?)', [userId,userName, authorId, refId, type])
+        const noticationId= result[0].notificationId
         // const[result2]=await conn.query ('select @refId as likeId')
         // const likeId=result2[0].likeId
         // res.json(likeId)
@@ -33,27 +34,32 @@ export const addTweetLike = async (req, res) => {
         // const [rows]= await conn.query('insert into notifications (refId,message,type) values(?,?,?)',[id,message,1])
 
         //first we have to check whether the user is online or not
+        console.log(result)
         const room = `user:${authorId}`
         const socketsInTheRoom = await io.in(room).fetchSockets()
 
         if (socketsInTheRoom.length > 0) {
-            const notication = {
-                message: message,
-                type: 'like',
-                from: userId, //logged in user
-                to:authorId,
-                timeStamp: new Date()
+            //option1:constructing a message here and then sending
+            //option2: querying directly from db notifications by Id
+            // const notication = {
+            //     message: message,
+            //     type: 'like',
+            //     from: userId, //logged in user
+            //     to:authorId,
+            //     timeStamp: new Date()
 
-            }
+            // }
             console.log('notification send')
             //user is online send notication
             //send notification
-            io.to(`user:${authorId}`).emit('notification', notication)
+            //get notification byId
+            const [[notifcation]]=await conn.query('call getNotificationById(?)',[noticationId])
+            io.to(`user:${authorId}`).emit('notification', notifcation)
         }
 
 
 
-        res.status(200).json({ result })
+        res.status(200).json({success:true,message:'like added successfully'})
         await conn.commit()
     } catch (error) {
         await conn.rollback()
