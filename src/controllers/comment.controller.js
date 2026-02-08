@@ -28,13 +28,36 @@ export const getTweetComments = async (req, res) => {
 }
 export const addTweetComments = async (req, res) => {
     const { tweetId, type = null, commentId = null, comment ,userId:authorId} = req.body
-    const { id:userId } = req.user
-    console.log(tweetId, type)
+    const { id:userId ,userName} = req.user
+    const io=req.app.get('io')
+    // console.log(tweetId, type)
     const conn = await pool.getConnection()
     try {
         await conn.beginTransaction()
+        const [postType] = await conn.query('select * from master_tweettypes where id=?', [type])
+        const message = `${userName} replied to  your ${postType[0].name}`
 
-        const [[result]] = await conn.query('call addComment(?,?,?,?,?)', [userId, authorId,tweetId, type, comment, commentId])
+        const [[result]] = await conn.query('call addComment(?,?,?,?,?,?,?)', [userId,userName, authorId,tweetId, type, comment, commentId])
+        const noticationId= result[0].notificationId
+        console.log(noticationId)
+        const room = `user:${authorId}`
+        const socketsInTheRoom = await io.in(room).fetchSockets()
+        if (socketsInTheRoom.length > 0) {
+            // const notication = {
+            //     message: message,
+            //     type: 'comment',
+            //     from: userId, //logged in user
+            //     to:authorId,
+            //     timeStamp: new Date()
+
+            // }
+            console.log('notification send')
+            //user is online send notication
+            //send notification
+            const [[notication]]=await conn.query('call getCommentNotificationById(?)',[noticationId])
+            console.log(notication)
+            io.to(`user:${authorId}`).emit('notification', notication)
+        }
 
         res.status(200).json({ result })
         // res.status(200).json({resu })
