@@ -1,14 +1,31 @@
 import pool from "../config/db.js";
 export const sendRequest = async (req, res) => {
+  const io=req.app.get('io')
   const { toUserId } = req.body;
-  const { id: fromUserId } = req.user;
+  const { id: fromUserId,userName } = req.user;
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
-    const [[result]] = await conn.execute("call sendRequest(?,?)", [
+    const [[result]] = await conn.execute("call sendRequest(?,?,?)", [
       toUserId,
+      userName,
       fromUserId,
     ]);
+    console.log(result)
+    const notificationId= result[0].notificationId
+    // console.log('notificaionId'+notificationId)
+    const room =`user:${toUserId}`
+    const socketsInTheRoom=await io.in(room).fetchSockets()
+    if (socketsInTheRoom.length > 0 &&  notificationId) {
+      // if online and we have notificaionId (incase of unfollow we don't have notification id we get string 'unfollowed')
+            console.log('notification send')
+            //user is online send notication
+            //send notification
+            const [[notication]]=await conn.execute('call getNotificationByIdV2(?)',[notificationId])
+            
+            // console.log(notication)
+            io.to(`user:${toUserId}`).emit('notification', notication)
+        }
     console.log(result);
     await conn.commit();
     res.status(201).json({ msg: result[0].result });
@@ -17,7 +34,7 @@ export const sendRequest = async (req, res) => {
     console.log(error);
     res.status(500).json({ success: false, message: error.message });
   } finally {
-    await conn.release();
+    conn.release();
   }
 };
 export const AcceptRequest = async (req, res) => {
