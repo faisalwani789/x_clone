@@ -38,7 +38,7 @@ export const addTweetLike = async (req, res) => {
         const room = `user:${authorId}`
         const socketsInTheRoom = await io.in(room).fetchSockets()
 
-        if (socketsInTheRoom.length > 0) {
+        if (socketsInTheRoom.length > 0 && noticationId) {
             //option1:constructing a message here and then sending
             //option2: querying directly from db notifications by Id
             // const notication = {
@@ -53,7 +53,7 @@ export const addTweetLike = async (req, res) => {
             //user is online send notication
             //send notification
             //get notification byId
-            const [[notifcation]]=await conn.query('call getNotificationById(?)',[noticationId])
+            const [[notifcation]]=await conn.query('call getNotificationByIdV2(?)',[noticationId])
             io.to(`user:${authorId}`).emit('notification', notifcation)
         }
 

@@ -42,7 +42,7 @@ export const addTweetComments = async (req, res) => {
         console.log(noticationId)
         const room = `user:${authorId}`
         const socketsInTheRoom = await io.in(room).fetchSockets()
-        if (socketsInTheRoom.length > 0) {
+        if (socketsInTheRoom.length > 0 && noticationId) {
             // const notication = {
             //     message: message,
             //     type: 'comment',
@@ -54,7 +54,7 @@ export const addTweetComments = async (req, res) => {
             console.log('notification send')
             //user is online send notication
             //send notification
-            const [[notication]]=await conn.query('call getCommentNotificationById(?)',[noticationId])
+            const [[notication]]=await conn.query('call getNotificationByIdV2(?)',[noticationId])
             console.log(notication)
             io.to(`user:${authorId}`).emit('notification', notication)
         }

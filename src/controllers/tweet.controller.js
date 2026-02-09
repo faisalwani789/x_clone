@@ -2,11 +2,11 @@ import pool from "../config/db.js"
 import buildCommentTree from "../utils/comment.js"
 import { uploadOnCloudinary } from "../utils/cloundinary.js"
 export const addTweet = async (req, res) => {
-    const { content = null, tweetId = null, type, parentRef = null } = req.body
-
-    console.log(type)
+    const { content = null, tweetId = null, type, parentRef = null,targetUserId } = req.body
+    const io=req.app.get('io')
+    // console.log(type)
     // console.log(content)
-    const { id: userId } = req.user
+    const { id: userId,userName } = req.user
     // const {retweet=null }=req.params
     let mediaPathLocal;
     let cloudinaryLinks = [];
@@ -32,10 +32,23 @@ export const addTweet = async (req, res) => {
                 cloudinaryLinks.push(response.url)
             }
         }
-
+        
         console.log(cloudinaryLinks)
-        const [message] = await conn.execute('call addTweet(?,?,?,?,?,?)', [content, userId, JSON.stringify(cloudinaryLinks), type, tweetId, parentRef]) // add tweet 
-        console.log(message)
+        const [result] = await conn.execute('call addTweet(?,?,?,?,?,?,?,?)',
+             [content, userName,userId, JSON.stringify(cloudinaryLinks), type, tweetId, targetUserId,parentRef]) // add tweet 
+        console.log(result)
+        const notifcationId=result[0]?.notificationId
+        console.log(notifcationId+'notId')
+        
+        const room=`user:${targetUserId}`
+        const socketsInTheRoom= await io.in(room).fetchSockets()
+        if(socketsInTheRoom.length>0 && notifcationId){
+            //notificaion
+            console.log('notification')
+            const [[notifcation]]= await conn.execute('call getNotificationByIdV2(?)',[notifcationId])
+            console.log(notifcation)
+            io.to(room).emit('notification',notifcation)
+        }
         // return res.json(cloudinaryLinks)
         // await conn.execute('call addMedia(?,?)',[cloudinaryLinks,tweet[0].id]) //attaching media
         await conn.commit()
