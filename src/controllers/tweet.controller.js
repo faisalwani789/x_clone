@@ -2,7 +2,7 @@ import pool from "../config/db.js"
 import buildCommentTree from "../utils/comment.js"
 import { uploadOnCloudinary } from "../utils/cloundinary.js"
 export const addTweet = async (req, res) => {
-    const { content = null, tweetId = null, type, parentRef = null,targetUserId } = req.body
+    const { content = null, tweetId = null, type, parentRef = null,targetUserId =null} = req.body
     const io=req.app.get('io')
     // console.log(type)
     // console.log(content)
@@ -33,12 +33,11 @@ export const addTweet = async (req, res) => {
             }
         }
         
-        console.log(cloudinaryLinks)
-        const [result] = await conn.execute('call addTweet(?,?,?,?,?,?,?,?)',
-             [content, userName,userId, JSON.stringify(cloudinaryLinks), type, tweetId, targetUserId,parentRef]) // add tweet 
+        // console.log(cloudinaryLinks)
+        const [[result]] = await conn.execute('call addTweet(?,?,?,?,?,?,?,?)',[content, userName,userId, JSON.stringify(cloudinaryLinks), type, tweetId, targetUserId,parentRef]) // add tweet 
         console.log(result)
         const notifcationId=result[0]?.notificationId
-        console.log(notifcationId+'notId')
+     
         
         const room=`user:${targetUserId}`
         const socketsInTheRoom= await io.in(room).fetchSockets()
@@ -52,9 +51,10 @@ export const addTweet = async (req, res) => {
         // return res.json(cloudinaryLinks)
         // await conn.execute('call addMedia(?,?)',[cloudinaryLinks,tweet[0].id]) //attaching media
         await conn.commit()
-        res.send(
-            'posted successfully'
-        )
+        res.status(201).json({
+            success:true,
+             message:result[0].message
+        })
 
     } catch (error) {
         console.log(error)
