@@ -9,6 +9,7 @@ import commentRouter from './src/router/comment.routes.js'
 import likeRouter from './src/router/like.routes.js'
 import adminRouter from './src/router/admin.routes.js'
 import searchRouter from './src/router/search.routes.js'
+import notificatioinRouter from './src/router/notification.routes.js'
 configDotenv()
 const port=process.env.PORT
 const app=express()
@@ -22,6 +23,7 @@ app.use('/profile',profileRouter)
 app.use('/followers',friedRequestRouter)
 app.use('/comments',commentRouter)
 app.use('/likes',likeRouter)
+app.use('/notifications',notificatioinRouter)
 app.use('/admin',adminRouter)
 app.use('/search',searchRouter)
 

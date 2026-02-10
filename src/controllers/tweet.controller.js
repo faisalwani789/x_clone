@@ -116,3 +116,4 @@ export const getFollowingTweets = async (req, res) => {
         conn.release()
     }
 }
+
