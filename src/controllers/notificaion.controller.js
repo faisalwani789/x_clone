@@ -14,6 +14,6 @@ export const getNotifications=async(req,res)=>{
         console.log(error)
     }
     finally{
-
+        conn.release
     }
 }

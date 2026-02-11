@@ -6,8 +6,8 @@ const registerNotificationHandler=(io,socket)=>{
         if(!userId) return
 
         socket.join('user:'+userId)
-        console.log(userId)
-        console.log(`user ${userId} registered and joined room with ${userId}`)
+        // console.log(userId)
+        // console.log(`user ${userId} registered and joined room with ${userId}`)
 
         socket.emit('registered',{userId,message:'your are now receiving notifications'})
 

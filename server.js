@@ -12,10 +12,7 @@ const server= http.createServer(app)
 //initialize the socket io
 
 const io= new Server(server,{
-    cors:{
-        origin:'*',
-        methods:['GET','POST']
-    }
+    
 })
 //socket io middleware
 io.use((socket,next)=>{
