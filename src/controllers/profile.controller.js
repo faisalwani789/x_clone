@@ -24,6 +24,7 @@ export const updateProfile = async (req, res) => {
     const { fullName= null, bio=null } = req.body
     let coverImageLocalPath;
     let profileImageLocalPath;
+    // if(fullName==bio==null ) 
     try {
       
         if(req.files && Array.isArray(req.files.profile) && req.files.profile.length>0){

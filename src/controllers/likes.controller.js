@@ -3,7 +3,7 @@ import pool from "../config/db.js"
 
 export const addTweetLike = async (req, res) => {
     const io = req.app.get('io')
-    const { refId, type, userId: authorId } = req.body //author id is the ownwer of the tweet/post
+    const { tweetId, type, userId: authorId } = req.body //author id is the ownwer of the tweet/post
     const { id: userId, userName } = req.user
     // console.log(req.user)
     // const notification = {
@@ -19,10 +19,10 @@ export const addTweetLike = async (req, res) => {
     try {
         await conn.beginTransaction()
         // const[row]= await conn.execute('select * from user where ')
-        const [postType] = await conn.query('select * from master_tweettypes where id=?', [type])
-        const message = `${userName} liked your ${postType[0].name}`
-        console.log(message)
-        const [[result]] = await conn.query('call addLike(?,?,?,?,?)', [userId,userName, authorId, refId, type])
+        // const [postType] = await conn.query('select * from master_tweettypes where id=?', [type])
+        // const message = `${userName} liked your ${postType[0].name}`
+        // console.log(message)
+        const [[result]] = await conn.query('call addLike(?,?,?,?,?)', [userId,userName, authorId, tweetId, type])
         const noticationId= result[0].notificationId
         // const[result2]=await conn.query ('select @refId as likeId')
         // const likeId=result2[0].likeId

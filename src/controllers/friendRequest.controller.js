@@ -11,7 +11,7 @@ export const sendRequest = async (req, res) => {
       userName,
       fromUserId,
     ]);
-    console.log(result)
+    // console.log(result)
     const notificationId= result[0].notificationId
     // console.log('notificaionId'+notificationId)
     const room =`user:${toUserId}`

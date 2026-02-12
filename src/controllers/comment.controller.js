@@ -27,7 +27,7 @@ export const getTweetComments = async (req, res) => {
     }
 }
 export const addTweetComments = async (req, res) => {
-    const { tweetId, type = null, commentId = null, comment ,userId:authorId} = req.body
+    const { tweetId, type , commentId = null, comment ,userId:authorId} = req.body
     const { id:userId ,userName} = req.user
     const io=req.app.get('io')
     // console.log(tweetId, type)

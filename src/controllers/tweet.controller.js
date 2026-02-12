@@ -4,10 +4,7 @@ import { uploadOnCloudinary } from "../utils/cloundinary.js"
 export const addTweet = async (req, res) => {
     const { content = null, tweetId = null, type, parentRef = null,targetUserId =null} = req.body
     const io=req.app.get('io')
-    // console.log(type)
-    // console.log(content)
     const { id: userId,userName } = req.user
-    // const {retweet=null }=req.params
     let mediaPathLocal;
     let cloudinaryLinks = [];
     const conn = await pool.getConnection()

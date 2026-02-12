@@ -61,7 +61,7 @@ export const sendOtp = async (req, res) => {
 export const verifyEmail = async (req, res) => {
 
     const { email, otp } = req.body
-    if (!email && otp) throw new Error('please enter email and otp')
+    console.log(email,otp)
     const conn = await pool.getConnection()
     try {
 
@@ -145,10 +145,6 @@ export const loginUser = async (req, res) => {
     }
     const conn = await pool.getConnection()
     try {
-        if (!password && !email) {
-            throw new Error(400, "password or email is required")
-        }
-
         // const [user]= await conn.query('select password,id,userName,fullName from user where email=?',[email])
         // return res.json(user)
 
@@ -189,6 +185,7 @@ export const forgetPassword = async (req, res) => {
     let resetLink = 'http://localhost:5000/users/reset-password?token=' //frontend page 
     try {
         const { email } = req.body
+        
         // check if user exists-> if exists ->generate hash token with its id ->make a link with token+email-> send
         const [user] = await conn.execute('select id,email from user where email=?', [email])
 
@@ -223,7 +220,8 @@ export const resetPassword = async (req, res) => {
     const conn = await pool.getConnection()
     try {
 
-        const { newPassword, token } = req.body
+        const { password:newPassword, token } = req.body
+        if(!token) throw new Error('token is required')
         const hashedToken = hashToken(token)
 
         await conn.beginTransaction()
