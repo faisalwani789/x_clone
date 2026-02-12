@@ -1,0 +1,16 @@
+import { body } from "express-validator"
+export const validateType = body('type')
+    .trim()
+    .notEmpty()
+    .withMessage('tweet type is required')
+    .isInt()
+    .withMessage('tweet type is of integer only')
+
+    export const validateTweetId = body('tweetId')
+    .trim()
+    .notEmpty()
+    .withMessage('tweetId is required')
+    .isInt()
+    .withMessage('enter a valid tweet Id')
+    .isLength({min:1})
+    .withMessage('too short')
