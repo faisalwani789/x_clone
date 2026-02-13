@@ -3,14 +3,16 @@ import { body } from "express-validator";
 export const passwordValidator = body('password')
   .trim()
   .notEmpty()
-  .withMessage('Password is required')
+  .withMessage('password is required')
   .isLength({ min: 8 })
   .withMessage('Password must be at least 8 characters')
 
 export const emailValidator=body('email')
   .trim()
-  .isEmail()
-  .withMessage('Valid email is required')
+  // .isEmail()
+  // .withMessage('Valid email is required')
+  .notEmpty()
+  .withMessage('email is required')
   .normalizeEmail();
 
 export const nameValidator=body('fullName')
