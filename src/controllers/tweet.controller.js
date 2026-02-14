@@ -1,5 +1,6 @@
 import pool from "../config/db.js"
 import buildCommentTree from "../utils/comment.js"
+
 import { uploadOnCloudinary } from "../utils/cloundinary.js"
 export const addTweet = async (req, res) => {
     const { content = null, tweetId = null, type, parentRef = null,targetUserId =null} = req.body
@@ -62,13 +63,42 @@ export const addTweet = async (req, res) => {
 }
 
 export const getTweets = async (req, res) => {
+    const abC=new AbortController()
+    const {signal}= abC
+    // req.signal=signal
+     req.on('close',()=>{
+        if(!res.writableEnded){
+            // abC.abort(new Error('client disconnected'))
+            console.log([req.method +" "+ req.url]+'client closed the connection')
+        // abC.abort()
+         conn.destroy()
+        //  throw new Error('client disconnected')
+        }
+        else{
+            console.log('response sent successfully...')
+        }
+        
+    })
+    signal.addEventListener('abort',()=>{
+        console.log('signal aborted')
+    })
 
     const conn = await pool.getConnection()
+ 
     try {
-        const [[result]] = await conn.query('call getTweets(?,?)', [10, 0])
-        res.status(200).json({ result: result })
+       
+        // const [[result]] = await conn.execute('call getTweets(?,?)', [10, 0])
+        // await conn.query('set session max_execution_time = 1 ')
+        await conn.query('select sleep(5)')
+    
+       const[rows]= await conn.query({sql:'SELECT * FROM tweets WHERE id = 1 ',signal:abC.signal})
+    //    console.log(rows)
+        res.status(200).json({ result: rows})
     } catch (error) {
         console.log(error)
+        if(error.name==='AbortError'){
+            console.log('query cancelled')
+        }
         res.status(500).json({ success: false, message: error.message })
     }
     finally {
