@@ -1,6 +1,7 @@
 
 import pool from "../config/db.js"
 import buildCommentTree from "../utils/comment.js"
+import { sendNotification } from "../helpers/send.notification.js"
 export const getTweetComments = async (req, res) => {
     let { id, type, page, limit, sortBy='recent' } = req.query
     page = Number(page) || 1;
@@ -38,25 +39,12 @@ export const addTweetComments = async (req, res) => {
         const message = `${userName} replied to  your ${postType[0].name}`
 
         const [[result]] = await conn.query('call addComment(?,?,?,?,?,?,?)', [userId,userName, authorId,tweetId, type, comment, commentId])
-        const noticationId= result[0].notificationId
-        console.log(noticationId)
+        const notificationId= result[0].notificationId
+       
         const room = `user:${authorId}`
         const socketsInTheRoom = await io.in(room).fetchSockets()
-        if (socketsInTheRoom.length > 0 && noticationId) {
-            // const notication = {
-            //     message: message,
-            //     type: 'comment',
-            //     from: userId, //logged in user
-            //     to:authorId,
-            //     timeStamp: new Date()
-
-            // }
-            console.log('notification send')
-            //user is online send notication
-            //send notification
-            const [[notication]]=await conn.query('call getNotificationByIdV2(?)',[noticationId])
-            console.log(notication)
-            io.to(`user:${authorId}`).emit('notification', notication)
+        if (socketsInTheRoom.length > 0 && notificationId) {
+          sendNotification(conn,notificationId,io,room)
         }
 
         res.status(200).json({ result })

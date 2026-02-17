@@ -41,7 +41,7 @@ export const rateLimiter = (req, res, next) => {
   const ip = req.ip;
   const now = Date.now();
   const timeLimit = 15 * 60 * 1000; // 15 minutes
-  const maxRequests = 2;
+  const maxRequests = 122;
 try {
   if (!requestCounts[ip]) {
     requestCounts[ip] = {

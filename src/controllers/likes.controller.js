@@ -1,6 +1,6 @@
-import { timeStamp } from "console"
-import pool from "../config/db.js"
 
+import pool from "../config/db.js"
+import { sendNotification } from "../helpers/send.notification.js"
 export const addTweetLike = async (req, res) => {
     const io = req.app.get('io')
     const { tweetId, type, userId: authorId } = req.body //author id is the ownwer of the tweet/post
@@ -23,7 +23,7 @@ export const addTweetLike = async (req, res) => {
         // const message = `${userName} liked your ${postType[0].name}`
         // console.log(message)
         const [[result]] = await conn.query('call addLike(?,?,?,?,?)', [userId,userName, authorId, tweetId, type])
-        const noticationId= result[0].notificationId
+        const notificationId= result[0].notificationId
         // const[result2]=await conn.query ('select @refId as likeId')
         // const likeId=result2[0].likeId
         // res.json(likeId)
@@ -38,7 +38,7 @@ export const addTweetLike = async (req, res) => {
         const room = `user:${authorId}`
         const socketsInTheRoom = await io.in(room).fetchSockets()
 
-        if (socketsInTheRoom.length > 0 && noticationId) {
+        if (socketsInTheRoom.length > 0 && notificationId) {
             //option1:constructing a message here and then sending
             //option2: querying directly from db notifications by Id
             // const notication = {
@@ -53,8 +53,7 @@ export const addTweetLike = async (req, res) => {
             //user is online send notication
             //send notification
             //get notification byId
-            const [[notifcation]]=await conn.query('call getNotificationByIdV2(?)',[noticationId])
-            io.to(`user:${authorId}`).emit('notification', notifcation)
+           sendNotification(conn,notificationId,io,room)
         }
 
 

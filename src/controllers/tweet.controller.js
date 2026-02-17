@@ -2,6 +2,7 @@ import pool from "../config/db.js"
 import buildCommentTree from "../utils/comment.js"
 
 import { uploadOnCloudinary } from "../utils/cloundinary.js"
+import { sendNotification } from "../helpers/send.notification.js"
 export const addTweet = async (req, res) => {
     const { content = null, tweetId = null, type, parentRef = null,targetUserId =null} = req.body
     const io=req.app.get('io')
@@ -10,11 +11,7 @@ export const addTweet = async (req, res) => {
     let cloudinaryLinks = [];
     const conn = await pool.getConnection()
     try {
-        //user logged in 
-        //take cotent from body stored in tweet model
-        //take image link and store in media Images with id of tweet
-        //
-
+       
         await conn.beginTransaction()
         if (req.files && Array.isArray(req.files) && req.files.length > 0) {
             mediaPathLocal = req.files
@@ -34,20 +31,16 @@ export const addTweet = async (req, res) => {
         // console.log(cloudinaryLinks)
         const [[result]] = await conn.execute('call addTweet(?,?,?,?,?,?,?,?)',[content, userName,userId, JSON.stringify(cloudinaryLinks), type, tweetId, targetUserId,parentRef]) // add tweet 
         console.log(result)
-        const notifcationId=result[0]?.notificationId
-     
+        const notificationId=result[0]?.notificationId
+        
         
         const room=`user:${targetUserId}`
         const socketsInTheRoom= await io.in(room).fetchSockets()
-        if(socketsInTheRoom.length>0 && notifcationId){
+        if(socketsInTheRoom.length>0 && notificationId){
             //notificaion
-            console.log('notification')
-            const [[notifcation]]= await conn.execute('call getNotificationByIdV2(?)',[notifcationId])
-            console.log(notifcation)
-            io.to(room).emit('notification',notifcation)
+            sendNotification(conn,notificationId,io,room)
         }
-        // return res.json(cloudinaryLinks)
-        // await conn.execute('call addMedia(?,?)',[cloudinaryLinks,tweet[0].id]) //attaching media
+      
         await conn.commit()
         res.status(201).json({
             success:true,
@@ -55,7 +48,8 @@ export const addTweet = async (req, res) => {
         })
 
     } catch (error) {
-        console.log(error)
+
+        // console.log(error)
         res.status(500).json({ success: false, message: error.message })
     } finally {
         conn.release()
@@ -63,35 +57,38 @@ export const addTweet = async (req, res) => {
 }
 
 export const getTweets = async (req, res) => {
-    const abC=new AbortController()
-    const {signal}= abC
+    const abortController=new AbortController()
+    const {signal}= abortController
+    let destroyed=false
     // req.signal=signal
-     req.on('close',()=>{
+    
+    signal.addEventListener('abort',()=>{
+        console.log('signal aborted')
+    })
+
+    const conn = await pool.getConnection()
+
+         req.on('close',()=>{
         if(!res.writableEnded){
             // abC.abort(new Error('client disconnected'))
             console.log([req.method +" "+ req.url]+'client closed the connection')
         // abC.abort()
+         destroyed=true
          conn.destroy()
-        //  throw new Error('client disconnected')
         }
         else{
             console.log('response sent successfully...')
         }
         
     })
-    signal.addEventListener('abort',()=>{
-        console.log('signal aborted')
-    })
-
-    const conn = await pool.getConnection()
  
     try {
-       
+   
         // const [[result]] = await conn.execute('call getTweets(?,?)', [10, 0])
         // await conn.query('set session max_execution_time = 1 ')
-        await conn.query('select sleep(5)')
+        // await conn.query('select sleep(5)')
     
-       const[rows]= await conn.query({sql:'SELECT * FROM tweets WHERE id = 1 ',signal:abC.signal})
+       const[rows]= await conn.query({sql:'select sleep(5)'})
     //    console.log(rows)
         res.status(200).json({ result: rows})
     } catch (error) {
@@ -102,7 +99,8 @@ export const getTweets = async (req, res) => {
         res.status(500).json({ success: false, message: error.message })
     }
     finally {
-        conn.release()
+        if(!destroyed)conn.release()
+        
     }
 }
 export const getTweetById = async (req, res) => {
